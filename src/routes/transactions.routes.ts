@@ -1,26 +1,39 @@
 import { Router } from 'express';
+import { celebrate, Segments, Joi } from 'celebrate';
+import multer from 'multer';
 
-// import TransactionsRepository from '../repositories/TransactionsRepository';
-// import CreateTransactionService from '../services/CreateTransactionService';
-// import DeleteTransactionService from '../services/DeleteTransactionService';
-// import ImportTransactionsService from '../services/ImportTransactionsService';
+import uploadConfig from '../config/upload';
+
+import TransactionsController from '../controllers/TransactionsController';
+import ImportTransactionsController from '../controllers/ImportTransactionsController';
 
 const transactionsRouter = Router();
+const transactionsController = new TransactionsController();
+const importTransactionsController = new ImportTransactionsController();
 
-transactionsRouter.get('/', async (request, response) => {
-  // TODO
-});
+const upload = multer(uploadConfig.multer);
 
-transactionsRouter.post('/', async (request, response) => {
-  // TODO
-});
+transactionsRouter.get('/', transactionsController.index);
 
-transactionsRouter.delete('/:id', async (request, response) => {
-  // TODO
-});
+transactionsRouter.post(
+  '/',
+  celebrate({
+    [Segments.BODY]: {
+      title: Joi.string().required(),
+      value: Joi.number().required(),
+      type: Joi.string().required(),
+      category: Joi.string().required(),
+    },
+  }),
+  transactionsController.create,
+);
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
-});
+transactionsRouter.delete('/:id', transactionsController.destroy);
+
+transactionsRouter.post(
+  '/import',
+  upload.single('file'),
+  importTransactionsController.create,
+);
 
 export default transactionsRouter;
