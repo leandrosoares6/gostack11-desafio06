@@ -14,7 +14,9 @@ class ListTransactionsService {
 
     const balance = await transactionsRepository.getBalance();
 
-    const transactions = await transactionsRepository.find();
+    const transactions = await transactionsRepository.find({
+      relations: ['category'],
+    });
 
     return {
       transactions,
